@@ -170,7 +170,8 @@ struct GenericFlatCodesDistanceComputer : FlatCodesDistanceComputer {
             float& dis0,
             float& dis1,
             float& dis2,
-            float& dis3) override {
+            float& dis3,
+            const int level = -1) override {
         uint8_t* cp = code_buffer.data();
         for (idx_t i : {idx0, idx1, idx2, idx3}) {
             memcpy(cp, codes + i * code_size, code_size);

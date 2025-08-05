@@ -62,7 +62,8 @@ void fvec_L2sqr_batch_4(
         float& dis0,
         float& dis1,
         float& dis2,
-        float& dis3);
+        float& dis3,
+        int level);
 
 /** Compute pairwise distances between sets of vectors
  *

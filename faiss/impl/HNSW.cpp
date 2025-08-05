@@ -15,6 +15,8 @@
 #include <faiss/impl/ResultHandler.h>
 #include <faiss/utils/prefetch.h>
 
+#include <iostream>
+
 #ifdef __AVX2__
 #include <immintrin.h>
 
@@ -454,7 +456,8 @@ void search_neighbors_to_add(
                             dis[0],
                             dis[1],
                             dis[2],
-                            dis[3]);
+                            dis[3],
+                            -6);
 
                     for (size_t id4 = 0; id4 < 4; id4++) {
                         update_with_candidate(buffered_ids[id4], dis[id4]);
@@ -687,8 +690,8 @@ int search_from_candidates(
                         dis[0],
                         dis[1],
                         dis[2],
-                        dis[3]);
-
+                        dis[3],
+                        level);
                 for (size_t id4 = 0; id4 < 4; id4++) {
                     add_to_heap(saved_j[id4], dis[id4]);
                 }
@@ -799,7 +802,8 @@ std::priority_queue<HNSW::Node> search_from_candidate_unbounded(
                         dis[0],
                         dis[1],
                         dis[2],
-                        dis[3]);
+                        dis[3],
+                        -2);
 
                 for (size_t id4 = 0; id4 < 4; id4++) {
                     add_to_heap(saved_j[id4], dis[id4]);
@@ -838,6 +842,11 @@ HNSWStats greedy_update_nearest(
         storage_idx_t& nearest,
         float& d_nearest) {
     HNSWStats stats;
+    
+    // print the level for the debugging purpose
+    // std::cout << "Running \"greedy_update_nearest\" on level " << level
+    //           << " with nearest " << nearest << " and d_nearest "
+    //           << d_nearest << std::endl;
 
     for (;;) {
         storage_idx_t prev_nearest = nearest;
@@ -868,7 +877,10 @@ HNSWStats greedy_update_nearest(
 
             buffered_ids[n_buffered] = v;
             n_buffered += 1;
-
+            // if (level > 1 || (level == 0 && n_buffered == 1)) {
+            //     std::cout << "level: " << level << "\n\n==========\n"
+            //               << std::endl;
+            // }
             if (n_buffered == 4) {
                 float dis[4];
                 qdis.distances_batch_4(
@@ -879,7 +891,8 @@ HNSWStats greedy_update_nearest(
                         dis[0],
                         dis[1],
                         dis[2],
-                        dis[3]);
+                        dis[3],
+                        level);
 
                 for (size_t id4 = 0; id4 < 4; id4++) {
                     update_with_candidate(buffered_ids[id4], dis[id4]);
@@ -927,6 +940,9 @@ HNSWStats HNSW::search(
         VisitedTable& vt,
         const SearchParameters* params) const {
     HNSWStats stats;
+    
+    // std::cout << "running on HNSW.cpp HNSW::search" << std::endl;
+
     if (entry_point == -1) {
         return stats;
     }
@@ -945,7 +961,8 @@ HNSWStats HNSW::search(
     //  greedy search on upper levels
     storage_idx_t nearest = entry_point;
     float d_nearest = qdis(nearest);
-
+    // std::cout << "update level from max_level:" << max_level << " to "
+    //           << 1 << " pt_level: " << pt_level << std::endl;
     for (int level = max_level; level >= 1; level--) {
         HNSWStats local_stats =
                 greedy_update_nearest(*this, qdis, level, nearest, d_nearest);

@@ -30,6 +30,8 @@
 #include <faiss/utils/random.h>
 #include <faiss/utils/sorting.h>
 
+#include <iostream>
+
 namespace faiss {
 
 using MinimaxHeap = HNSW::MinimaxHeap;
@@ -213,6 +215,7 @@ IndexHNSW::IndexHNSW(int d, int M, MetricType metric)
 IndexHNSW::IndexHNSW(Index* storage, int M)
         : Index(storage->d, storage->metric_type), hnsw(M), storage(storage) {
     metric_arg = storage->metric_arg;
+    std::cout << "Build HNSW INDEX : Custom by hyuk, init: testing shell script" << std::endl;
 }
 
 IndexHNSW::~IndexHNSW() {
@@ -247,6 +250,9 @@ void hnsw_search(
             index->storage,
             "No storage index, please use IndexHNSWFlat (or variants) "
             "instead of IndexHNSW directly");
+
+    std::cout << "Performing hnsw_search : 001" << std::endl;
+
     const HNSW& hnsw = index->hnsw;
 
     int efSearch = hnsw.efSearch;
@@ -260,6 +266,8 @@ void hnsw_search(
 
     idx_t check_period = InterruptCallback::get_period_hint(
             hnsw.max_level * index->d * efSearch);
+
+    std::cout << "check_period: " << check_period << std::endl;
 
     for (idx_t i0 = 0; i0 < n; i0 += check_period) {
         idx_t i1 = std::min(i0 + check_period, n);
@@ -305,6 +313,8 @@ void IndexHNSW::search(
     using RH = HeapBlockResultHandler<HNSW::C>;
     RH bres(n, distances, labels, k);
 
+    std::cout << "Performing \"search\" 002 ..." << std::endl;
+
     hnsw_search(this, n, x, bres, params);
 
     if (is_similarity_metric(this->metric_type)) {
@@ -323,6 +333,8 @@ void IndexHNSW::search(
         float* distances,
         idx_t* labels,
         const SearchParameters* params) const {
+    
+    std::cout << "Performing \"search\" 003 ..." << std::endl;
     Index::search(n, x, numeric_type, k, distances, labels, params);
 }
 
@@ -332,6 +344,9 @@ void IndexHNSW::range_search(
         float radius,
         RangeSearchResult* result,
         const SearchParameters* params) const {
+    
+    std::cout << "Performing range_search 004 ..." << std::endl;
+    
     using RH = RangeSearchBlockResultHandler<HNSW::C>;
     RH bres(result, is_similarity_metric(metric_type) ? -radius : radius);
 

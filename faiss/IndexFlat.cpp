@@ -18,6 +18,8 @@
 #include <faiss/utils/sorting.h>
 #include <cstring>
 
+#include <iostream>
+
 namespace faiss {
 
 IndexFlat::IndexFlat(idx_t d, MetricType metric)
@@ -147,9 +149,25 @@ struct FlatL2Dis : FlatCodesDistanceComputer {
             float& dis0,
             float& dis1,
             float& dis2,
-            float& dis3) final override {
+            float& dis3,
+            const int level) final override {
         ndis += 4;
-
+                
+        if (level == -2) {
+            std::cout << "Fuck-2" << std::endl;
+        } else if (level == -1) {
+            // do nothing
+            std::cout << "Fuck-1" << std::endl;
+        } else if (level == 0) {
+            // std::cout << "Fuck0" << std::endl;
+        } else if (level == 1) {
+            // std::cout << "Fuck1" << std::endl;
+        } else { // level >=2
+            // std::cout << "Computing distances in FlatL2Dis for indices: "
+            //           << idx0 << ", " << idx1 << ", " << idx2 << ", " << idx3
+            //           << std::endl;
+        }
+        
         // compute first, assign next
         const float* __restrict y0 =
                 reinterpret_cast<const float*>(codes + idx0 * code_size);
@@ -164,7 +182,7 @@ struct FlatL2Dis : FlatCodesDistanceComputer {
         float dp1 = 0;
         float dp2 = 0;
         float dp3 = 0;
-        fvec_L2sqr_batch_4(q, y0, y1, y2, y3, d, dp0, dp1, dp2, dp3);
+        fvec_L2sqr_batch_4(q, y0, y1, y2, y3, d, dp0, dp1, dp2, dp3, level);
         dis0 = dp0;
         dis1 = dp1;
         dis2 = dp2;
@@ -211,8 +229,13 @@ struct FlatIPDis : FlatCodesDistanceComputer {
             float& dis0,
             float& dis1,
             float& dis2,
-            float& dis3) final override {
+            float& dis3,
+            const int level) final override {
         ndis += 4;
+
+        // std::cout << "Computing distances in FlatIPDis for indices: "
+        //           << idx0 << ", " << idx1 << ", " << idx2 << ", " << idx3
+        //           << std::endl;
 
         // compute first, assign next
         const float* __restrict y0 =
@@ -335,8 +358,13 @@ struct FlatL2WithNormsDis : FlatCodesDistanceComputer {
             float& dis0,
             float& dis1,
             float& dis2,
-            float& dis3) final override {
+            float& dis3,
+            const int level) final override {
         ndis += 4;
+
+        // std::cout << "Computing distances in FlatL2WithNormsDis for indices: "
+        //           << idx0 << ", " << idx1 << ", " << idx2 << ", " << idx3
+        //           << std::endl;
 
         // compute first, assign next
         const float* __restrict y0 =

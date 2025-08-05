@@ -14,6 +14,9 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <iostream>
+#include <random>
+
 
 #include <faiss/impl/FaissAssert.h>
 #include <faiss/impl/platform_macros.h>
@@ -275,21 +278,87 @@ void fvec_L2sqr_batch_4(
         float& dis0,
         float& dis1,
         float& dis2,
-        float& dis3) {
+        float& dis3,
+        int level = -4) {
     float d0 = 0;
     float d1 = 0;
     float d2 = 0;
     float d3 = 0;
     FAISS_PRAGMA_IMPRECISE_LOOP
-    for (size_t i = 0; i < d; ++i) {
-        const float q0 = x[i] - y0[i];
-        const float q1 = x[i] - y1[i];
-        const float q2 = x[i] - y2[i];
-        const float q3 = x[i] - y3[i];
-        d0 += q0 * q0;
-        d1 += q1 * q1;
-        d2 += q2 * q2;
-        d3 += q3 * q3;
+    if (level == -4) {
+        std::cout << "there is some mistake on -4" << std::endl;
+    }
+    else if (level == -5) {
+        std::cout << "there is some mistake on -5" << std::endl;
+    }
+    else if (level == -6) {
+        std::cout << "there is some mistake on -6" << std::endl;
+    }
+    else if (level == -7) {
+        std::cout << "there is some mistake on -7" << std::endl;
+    }
+    else if (level <= -8) {
+        std::cout << "there is some mistake below then -8" << std::endl;
+    } 
+    else if (level == -3) {
+        std::cout << "there is some mistake" << std::endl;
+    } else if (level == -2) {
+        std::cout << "there is some mistake" << std::endl;
+    } else if (level == -1) {
+        // do nothing
+        std::cout << "-1 is injected check the code" << std::endl;
+    // } else if (level == 0) {
+    //     // do nothing
+    // } else if (level == 1) {
+        // do nothing
+    } else { // level >=0
+        // std::cout << "Computing distances in fvec_L2sqr_batch_4 for level: "
+        //           << level << std::endl;
+    }
+    // calculating the l2 distance with some error 
+    int noise_inject_level = 0;
+    if (level > noise_inject_level) {
+        // Seed with a real random value, if available
+        std::random_device rd;
+
+        // Standard mersenne_twister_engine seeded with rd()
+        std::mt19937 gen(rd());
+
+        // mean and stddev variable
+        float mean = 0.0;
+        float stddev = 0.01;
+        // float stddev = 0.03;
+        // float stddev = 0.05;
+        // float stddev = 0.1;
+        // float stddev = 0.1;
+
+        
+        std::normal_distribution<> dist(mean, stddev);
+        if (dist(gen) > 5 * stddev) {
+            std::cout << "applying error with N(" << mean << ", " << stddev << ") on level " << level << std::endl;
+        } 
+
+        for (size_t i = 0; i < d; ++i) {
+            const float q0 = x[i] - y0[i] * (1 + dist(gen));
+            const float q1 = x[i] - y1[i] * (1 + dist(gen));
+            const float q2 = x[i] - y2[i] * (1 + dist(gen));
+            const float q3 = x[i] - y3[i] * (1 + dist(gen));
+            d0 += q0 * q0;
+            d1 += q1 * q1;
+            d2 += q2 * q2;
+            d3 += q3 * q3;
+        }
+    } else {
+        for (size_t i = 0; i < d; ++i) {
+            const float q0 = x[i] - y0[i];
+            const float q1 = x[i] - y1[i];
+            const float q2 = x[i] - y2[i];
+            const float q3 = x[i] - y3[i];
+            d0 += q0 * q0;
+            d1 += q1 * q1;
+            d2 += q2 * q2;
+            d3 += q3 * q3;
+        }
     }
 
     dis0 = d0;

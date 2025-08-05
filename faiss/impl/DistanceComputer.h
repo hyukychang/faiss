@@ -41,7 +41,8 @@ struct DistanceComputer {
             float& dis0,
             float& dis1,
             float& dis2,
-            float& dis3) {
+            float& dis3,
+            const int level = -1) {
         // compute first, assign next
         const float d0 = this->operator()(idx0);
         const float d1 = this->operator()(idx1);
@@ -86,7 +87,8 @@ struct NegativeDistanceComputer : DistanceComputer {
             float& dis0,
             float& dis1,
             float& dis2,
-            float& dis3) override {
+            float& dis3,
+            const int level = -1) override {
         basedis->distances_batch_4(
                 idx0, idx1, idx2, idx3, dis0, dis1, dis2, dis3);
         dis0 = -dis0;
