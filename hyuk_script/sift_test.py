@@ -3,8 +3,8 @@ import faiss
 
 
 # import the existing SIFT1M index
-# index_name = "sift1m_hnsw_ip.index"
-index_name = "sift1m_hnsw.index"
+index_name = "sift1m_hnsw_ip.index"
+# index_name = "sift1m_hnsw.index"
 print(f"Loading index from {index_name}...")
 index: faiss.HNSW = faiss.read_index(index_name)
 # print the index stats
@@ -25,13 +25,20 @@ for lvl in sorted(level_hist, reverse=True):
 
 # Perform a search
 from faiss.contrib.datasets import DatasetSIFT1M
+import numpy as np
 
 ds = DatasetSIFT1M()
 query = ds.get_queries()
 num_query = query.shape[0]  # number of queries
 ks = [1,5,10,50,100]
+vector = ds.get_database()  # database vectors
 
-ground_truth = ds.get_groundtruth()
+if "ip" in index_name:
+    print("Using inner product (IP) distance for search.")
+    ground_truth = np.load("sift_gt_cal_ip.npz")["indices"]
+else:
+    print("load ground truth from SIFT1M gt data")
+    ground_truth = ds.get_groundtruth()
 
 recall = {k: 0 for k in ks}
 

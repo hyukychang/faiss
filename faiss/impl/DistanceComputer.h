@@ -8,6 +8,7 @@
 #pragma once
 
 #include <faiss/Index.h>
+#include <iostream>
 
 namespace faiss {
 
@@ -89,8 +90,11 @@ struct NegativeDistanceComputer : DistanceComputer {
             float& dis2,
             float& dis3,
             const int level = -1) override {
+        if (level == -1) {
+            std::cout << "this is the error on line 93 on DistanceComputer.h on NegativeDistanceComputer" << std::endl;
+        }
         basedis->distances_batch_4(
-                idx0, idx1, idx2, idx3, dis0, dis1, dis2, dis3);
+                idx0, idx1, idx2, idx3, dis0, dis1, dis2, dis3, level);
         dis0 = -dis0;
         dis1 = -dis1;
         dis2 = -dis2;

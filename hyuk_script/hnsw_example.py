@@ -13,7 +13,7 @@ np.random.seed(42)
 xb = np.random.random((nb, d)).astype('float32')
 
 # Create HNSW index
-index = faiss.IndexHNSWFlat(d, 32)  # 32 = number of neighbors in the HNSW graph (M)
+index = faiss.IndexHNSWFlat(d, 32, faiss.METRIC_INNER_PRODUCT)  # 32 = number of neighbors in the HNSW graph (M)
 index.hnsw.efConstruction = 40      # Higher = more accurate, slower to build
 
 # Add vectors to the index

@@ -245,19 +245,63 @@ void fvec_inner_product_batch_4(
         float& dis0,
         float& dis1,
         float& dis2,
-        float& dis3) {
+        float& dis3,
+        int level = -100) {
+    // std::cout << "performing innerproduct" << std::endl;
     float d0 = 0;
     float d1 = 0;
     float d2 = 0;
     float d3 = 0;
     FAISS_PRAGMA_IMPRECISE_LOOP
-    for (size_t i = 0; i < d; ++i) {
-        d0 += x[i] * y0[i];
-        d1 += x[i] * y1[i];
-        d2 += x[i] * y2[i];
-        d3 += x[i] * y3[i];
+    if (level == -100) {
+        std::cout << "there is some IP mistake on -100" << std::endl;
+    } else if (level < 0) {
+        std::cout << "there is some IP mistake on negative level" << level << std::endl;
+    } else if (level == 0) {
+        // do nothing
+        // std::cout << "0 is injected check the code" << std::endl;
+    } else if (level == 1) {
+        // do nothing
+        // std::cout << "1 is injected check the code" << std::endl;
+    } else { // level >=2
+        // std::cout << "Computing distances in fvec_inner_product_batch_4 for level: "
+        //           << level << std::endl;
     }
+    int noise_inject_level = 0;
+    if (level > noise_inject_level) {
+        // Seed with a real random value, if available
+        std::random_device rd;
 
+        // Standard mersenne_twister_engine seeded with rd()
+        std::mt19937 gen(rd());
+
+        // mean and stddev variable
+        float mean = 0.0;
+        float stddev = 0.01;
+        // float stddev = 0.03;
+        // float stddev = 0.05;
+        // float stddev = 0.1;
+
+        // std::cout << "applying error with N(" << mean << ", " << stddev << ") on level " << level << std::endl; 
+        std::normal_distribution<> dist(mean, stddev);
+        if (dist(gen) > 3 * stddev) {
+            std::cout << "applying error with N(" << mean << ", " << stddev << ") on level " << level << std::endl;
+        } 
+
+        for (size_t i = 0; i < d; ++i) {
+            d0 += x[i] * y0[i] * (1 + dist(gen));
+            d1 += x[i] * y1[i] * (1 + dist(gen));
+            d2 += x[i] * y2[i] * (1 + dist(gen));
+            d3 += x[i] * y3[i] * (1 + dist(gen));
+        }
+    } else { // no noise injection
+        for (size_t i = 0; i < d; ++i) {
+            d0 += x[i] * y0[i];
+            d1 += x[i] * y1[i];
+            d2 += x[i] * y2[i];
+            d3 += x[i] * y3[i];
+        }
+    }
     dis0 = d0;
     dis1 = d1;
     dis2 = d2;

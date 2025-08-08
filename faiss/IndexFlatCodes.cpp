@@ -172,6 +172,10 @@ struct GenericFlatCodesDistanceComputer : FlatCodesDistanceComputer {
             float& dis2,
             float& dis3,
             const int level = -1) override {
+        
+        if (level == -1) {
+            std::cout << "[HYUK] this is the error on line 177" << std::endl;
+        }
         uint8_t* cp = code_buffer.data();
         for (idx_t i : {idx0, idx1, idx2, idx3}) {
             memcpy(cp, codes + i * code_size, code_size);

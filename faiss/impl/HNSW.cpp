@@ -457,7 +457,7 @@ void search_neighbors_to_add(
                             dis[1],
                             dis[2],
                             dis[3],
-                            -6);
+                            level);
 
                     for (size_t id4 = 0; id4 < 4; id4++) {
                         update_with_candidate(buffered_ids[id4], dis[id4]);

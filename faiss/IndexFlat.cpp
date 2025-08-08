@@ -154,14 +154,14 @@ struct FlatL2Dis : FlatCodesDistanceComputer {
         ndis += 4;
                 
         if (level == -2) {
-            std::cout << "Fuck-2" << std::endl;
+            std::cout << "Huge error -2" << std::endl;
         } else if (level == -1) {
             // do nothing
-            std::cout << "Fuck-1" << std::endl;
+            std::cout << "Huge error -1" << std::endl;
         } else if (level == 0) {
-            // std::cout << "Fuck0" << std::endl;
+            // std::cout << "Huge error 0" << std::endl;
         } else if (level == 1) {
-            // std::cout << "Fuck1" << std::endl;
+            // std::cout << "Huge error 1" << std::endl;
         } else { // level >=2
             // std::cout << "Computing distances in FlatL2Dis for indices: "
             //           << idx0 << ", " << idx1 << ", " << idx2 << ", " << idx3
@@ -232,6 +232,9 @@ struct FlatIPDis : FlatCodesDistanceComputer {
             float& dis3,
             const int level) final override {
         ndis += 4;
+        if (level < 0) {
+            std::cout << "[HYUK] this is the error on line 236 on IndexFlat.cpp" << std::endl;
+        }
 
         // std::cout << "Computing distances in FlatIPDis for indices: "
         //           << idx0 << ", " << idx1 << ", " << idx2 << ", " << idx3
@@ -251,7 +254,7 @@ struct FlatIPDis : FlatCodesDistanceComputer {
         float dp1 = 0;
         float dp2 = 0;
         float dp3 = 0;
-        fvec_inner_product_batch_4(q, y0, y1, y2, y3, d, dp0, dp1, dp2, dp3);
+        fvec_inner_product_batch_4(q, y0, y1, y2, y3, d, dp0, dp1, dp2, dp3, level);
         dis0 = dp0;
         dis1 = dp1;
         dis2 = dp2;
@@ -385,7 +388,7 @@ struct FlatL2WithNormsDis : FlatCodesDistanceComputer {
         float dp1 = 0;
         float dp2 = 0;
         float dp3 = 0;
-        fvec_inner_product_batch_4(q, y0, y1, y2, y3, d, dp0, dp1, dp2, dp3);
+        fvec_inner_product_batch_4(q, y0, y1, y2, y3, d, dp0, dp1, dp2, dp3, level);
         dis0 = query_l2norm + l2norms[idx0] - 2 * dp0;
         dis1 = query_l2norm + l2norms[idx1] - 2 * dp1;
         dis2 = query_l2norm + l2norms[idx2] - 2 * dp2;
